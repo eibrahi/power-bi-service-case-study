@@ -224,7 +224,7 @@ Die Tabelle wurde nach `Case_ID` und `Quellenprioritaet` sortiert, gepuffert und
 
 Diese Quellenpriorisierung ist eine methodische Annahme der Fallstudie. In einem produktiven System müsste die Golden-Record-Regel mit den fachlich Verantwortlichen abgestimmt werden.
 
-## Behandlung von Ausreißern
+## Behandlung von Ausreißern ==> (WURDE IM PROJEKT AUS ZEITGRÜNDEN NICHT GEMACHT)
 
 Ausreißer wurden über die Interquartilsabstandsmethode geprüft:
 
