@@ -48,17 +48,20 @@ Die Seiten können über die Reiter am unteren Rand von Power BI geöffnet werde
 ```text
 power-bi-service-case-study/
 ├── README.md
+├── .gitignore
 ├── dashboard/
 │   └── Service_Case_Analyse.pbix
 ├── data/
 │   └── Fallstudie_Rohdaten_Service_Cases.xlsx
+├── documentation/
+│   └── Dokumentation.md
+├── exports/
+│   └── Service_Case_Analyse.pdf
 └── screenshots/
     ├── 01_management_overview.png
     ├── 02_operativ.png
     └── 03_datenqualitaet.png
 ```
-
-## Dokumentation
 
 ## 1. Zielsetzung
 
