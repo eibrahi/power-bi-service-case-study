@@ -81,7 +81,7 @@ Als Berichtsdatum wird der **15.06.2026** verwendet. Dieses Datum entspricht dem
 
 ## 2. Management Overview
 
-![Management Overview](../screenshots/01_management_overview.png)
+![Management Overview](./screenshots/01_management_overview.png)
 
 ### Zweck
 
@@ -144,7 +144,7 @@ Besondere Aufmerksamkeit verdienen die 13 eskalierten Fälle sowie die 20 Fälle
 
 ## 3. Operative Analyse
 
-![Operative Analyse](../screenshots/02_operativ.png)
+![Operative Analyse](./screenshots/02_operativ.png)
 
 ### Zweck
 
@@ -197,7 +197,7 @@ Sie ermöglicht den Wechsel von der aggregierten Darstellung zum einzelnen Case.
 
 ## 4. Datenqualität
 
-![Datenqualität](../screenshots/03_datenqualitaet.png)
+![Datenqualität](./screenshots/03_datenqualitaet.png)
 
 ### Zweck
 
