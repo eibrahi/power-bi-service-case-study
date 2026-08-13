@@ -1,463 +1,231 @@
-# Power BI Service Case Study
+# Dokumentation des Power-BI-Service-Case-Dashboards
 
-## Projektübersicht
+## 1. Zielsetzung
 
-Diese Fallstudie analysiert synthetische Service-Case-Daten eines international aufgestellten Unternehmens. Ziel war es, die bereitgestellten Rohdaten zunächst systematisch auf Datenqualitätsprobleme zu prüfen, die operativen Servicefälle mit den Standortstammdaten zu verbinden und die Ergebnisse anschließend in einem managementgerechten Power-BI-Dashboard aufzubereiten.
+Das Power-BI-Dashboard analysiert synthetische Service-Case-Daten eines international tätigen Unternehmens. Ziel ist es, den Bearbeitungsstand, die Terminsituation, die Kostenverteilung und die Datenqualität transparent darzustellen.
 
-Die Analyse beantwortet insbesondere folgende Fragen:
+Der Bericht besteht aus drei Seiten:
 
-- Wie zuverlässig und vollständig ist die vorhandene Datenbasis?
-- Wie viele Servicefälle sind offen, abgeschlossen, eskaliert oder überfällig?
-- Welche Standorte, Regionen und Fehlerkategorien verursachen das höchste Fallaufkommen?
-- Wo entstehen besonders hohe Kosten und Aufwände?
-- Wie termintreu werden Servicefälle bearbeitet?
-- Welche Einschränkungen müssen bei der Interpretation der Ergebnisse berücksichtigt werden?
+1. **Management Overview** – zentrale Kennzahlen und Gesamtüberblick
+2. **Operative Analyse** – Detailanalyse nach Region, Priorität und Fehlerstruktur
+3. **Datenqualität** – Übersicht über fehlende, doppelte und widersprüchliche Daten
 
-Die Quelldaten sind laut Aufgabenstellung vollständig synthetisch und haben keinen direkten Bezug zu einem realen Unternehmen.
+Die Rohdatentabelle enthält 200 Zeilen. Da vier Case-IDs jeweils doppelt vorkommen, stehen für die operative Analyse 196 eindeutige Servicefälle zur Verfügung. Die Datenqualitätsseite verwendet weiterhin alle 200 Rohzeilen, damit die Dubletten sichtbar bleiben.
 
-## Ausgangsdaten
+Als Berichtsdatum wird der **15.06.2026** verwendet. Dieses Datum entspricht dem maximalen Erfassungsdatum im Datensatz. Ein Fall gilt als überfällig, wenn sein Status nicht `Abgeschlossen` ist und sein Zieltermin vor diesem Berichtsdatum liegt.
 
-Die Excel-Arbeitsmappe enthält drei Tabellenblätter:
+---
 
-### `Service_Cases`
+## 2. Management Overview
 
-Die operative Haupttabelle enthält 200 Datensätze und 18 Spalten. Jede Zeile repräsentiert grundsätzlich einen Servicefall. Enthalten sind unter anderem:
+![Management Overview](../screenshots/01_management_overview.png)
 
-- Case-ID und Eingangsquelle
-- Standort in uneinheitlicher Rohschreibweise
-- Produktgruppe, Priorität und Fehlerkategorie
-- Erfassungs-, Ziel- und Ist-Fertigstellungsdatum
-- Bearbeitungsstatus
-- Aufwand und Kosten
-- Kundensegment und Komplexität
-- verantwortlicher Bereich, Ursache-Code und Bemerkung
+### Zweck
 
-### `Standorte`
+Die Seite richtet sich an Führungskräfte und bietet einen kompakten Überblick über Fallbestand, Bearbeitungsfortschritt, Terminsituation und Kosten.
 
-Die Stammdatentabelle enthält 20 Standorte mit folgenden Merkmalen:
+Über die Filter **Region**, **Standort**, **Priorität**, **Produktgruppe** und **Zeitraum** kann die Analyse auf bestimmte Bereiche eingeschränkt werden.
 
-- eindeutige Standort-ID
-- standardisierter Standortname
-- Land und Region
-- organisatorisch verantwortlicher Bereich
-- monatliche Fallkapazität und Monatsbudget
-- Kostenstelle und Manager-Code
+### Zentrale Kennzahlen
 
-### `Hinweise`
+| Kennzahl | Wert | Bedeutung |
+|---|---:|---|
+| Anzahl Cases | 196 | Eindeutige Servicefälle nach der Dublettenbereinigung |
+| Offener Bestand | 134 | Alle Cases, deren Status nicht `Abgeschlossen` ist |
+| Abschlussquote | 31,6 % | Anteil der 62 abgeschlossenen Cases an allen 196 Cases |
+| Überfällige offene Cases | 111 | Offene Cases mit Zieltermin vor dem 15.06.2026 |
+| Gesamtkosten | ca. 375.467 EUR | Summe der vorhandenen Kostenwerte |
 
-Der Hinweisreiter erläutert, dass Inkonsistenzen bewusst eingebaut wurden. Erwartet werden keine perfekte fachliche Bereinigung, sondern ein strukturiertes Vorgehen, eine nachvollziehbare Excel-/BI-Methodik und eine managementgerechte Verdichtung.
+Der offene Bestand umfasst die Statuswerte `Offen`, `In Bearbeitung`, `Warten auf Rückmeldung` und `Eskaliert`. Von den 134 offenen Cases sind 111 überfällig. Das entspricht ungefähr 82,8 % des offenen Bestands und deutet auf einen erheblichen Bearbeitungsrückstand hin.
 
-## Projektstruktur
+Die Gesamtkosten können aufgrund von fünf fehlenden Kostenwerten unvollständig sein. Sie entsprechen daher der Summe der dokumentierten Kosten und nicht zwingend den vollständig entstandenen Kosten.
 
-```text
-power-bi-service-case-study/
-├── README.md
-├── dashboard/
-│   └── Service_Case_Analyse.pbix
-├── data/
-│   └── Fallstudie_Rohdaten_Service_Cases.xlsx
-├── documentation/
-├── exports/
-│   └── Service_Case_Analyse.pdf
-└── screenshots/
-    ├── 01_management_overview.png
-    ├── 02_operativ.png
-    └── 03_datenqualitaet.png
-```
+### Offener Bestand nach Region
 
-## Vorgehensweise
+Das Diagramm zeigt, in welchen Regionen sich die noch nicht abgeschlossenen Fälle konzentrieren. `Nord` besitzt den höchsten offenen Bestand, gefolgt von `Sued`. Fälle ohne zuordenbaren Standort erscheinen unter `(Leer)`.
 
-Die Umsetzung erfolgte in sechs aufeinander aufbauenden Schritten:
+Die absoluten Werte sollten für eine Kapazitätsbeurteilung zusätzlich in Relation zum gesamten Fallaufkommen und zur monatlichen Kapazität der Standorte gesetzt werden.
 
-1. Rohdaten unverändert einlesen und absichern
-2. Datenqualität profilieren und Fehler kennzeichnen
-3. Standort- und Organisationswerte standardisieren
-4. Dubletten analysieren und eine eindeutige Analysetabelle erzeugen
-5. Datenmodell und DAX-Kennzahlen erstellen
-6. Ergebnisse in drei Berichtsseiten visualisieren
+### Gesamtkosten nach Fehlerkategorie
 
-## Datenaufbereitung in Power Query
+Die Fehlerkategorie `Prozess` verursacht mit ungefähr 112.673 EUR das höchste Kostenvolumen. Danach folgen insbesondere `Software` und `Elektrik`.
 
-### Rohdatenabfragen
+Prozessbezogene Servicefälle stellen damit den größten Kostenblock dar und sollten hinsichtlich wiederkehrender Ursachen und möglicher Prozessverbesserungen vertieft untersucht werden.
 
-Die Excel-Tabellen wurden zunächst als Rohdatenabfragen importiert:
+### Anzahl Cases nach Monat
 
-- `Raw_Service_Cases`
-- `Raw_Standorte`
+Das Liniendiagramm zeigt die Anzahl neu erfasster Servicefälle pro Monat. Damit wird die Entwicklung des Case-Eingangs im Zeitverlauf sichtbar.
 
-Für diese Abfragen wurde das Laden ins Datenmodell deaktiviert. Sie dienen ausschließlich als unveränderte Ausgangsschicht. Die weiteren Abfragen wurden über Verweise aufgebaut, sodass die Transformationen nachvollziehbar bleiben.
+Da der Datenstand am 15.06.2026 endet, ist Juni kein vollständiger Monat. Ein niedriger Juniwert darf deshalb nicht ohne weitere Prüfung als tatsächlicher Rückgang interpretiert werden.
 
-Die relevanten Folgeabfragen sind:
+### Standorte nach offenem Bestand
 
-- `Fact_Service_Cases`: vollständige Case-Tabelle einschließlich Datenqualitätskennzeichen
-- `Fact_Service_Cases_Analyse`: deduplizierte Tabelle für die operative Analyse
-- `Dim_Standorte`: bereinigte Standortdimension
-- `Mapping_Standorte`: kontrollierte Zuordnung von Rohwerten zu Masterstandorten
-- `Check_Dubletten`: Anzahl der Datensätze je Case-ID
+Das Diagramm zeigt die Standorte mit den meisten nicht abgeschlossenen Fällen. Besonders auffällig sind Frankfurt, Hannover, Lyon, Berlin Nord, Dortmund und Leipzig.
 
-### Datentypen und Textbereinigung
+Die Darstellung unterstützt die operative Priorisierung von Standorten mit einem hohen Bearbeitungsrückstand. Für eine abschließende Bewertung sollte auch die jeweilige Standortkapazität berücksichtigt werden.
 
-Die Spalten wurden explizit typisiert:
+### Anzahl Cases nach Status
 
-- IDs, Kategorien und Codes als Text
-- Datumsfelder als Datum
-- `Aufwand_Std` und `Kosten_EUR` als Dezimalzahlen
-- Datenqualitätskennzeichen als ganze Zahlen
-
-Relevante Textspalten wurden in Power Query mit **Kürzen** und **Bereinigen** verarbeitet. Fehlende Werte wurden nicht pauschal ersetzt, da ihr Fehlen selbst eine relevante Qualitätsinformation darstellt.
-
-## Datenqualitätsprüfung
-
-### Festgestellte Auffälligkeiten
-
-| Qualitätsprüfung | Ergebnis |
+| Status | Anzahl Cases |
 |---|---:|
-| Rohdatensätze | 200 |
-| Eindeutige Case-IDs | 196 |
-| Doppelt vorkommende Case-IDs | 4 |
-| Fehlende Standorte | 5 |
-| Fehlender Aufwand | 10 |
-| Fehlende Kosten | 5 |
-| Fehlende Ursache-Codes | 30 |
-| Fehlende Bemerkungen | 27 |
-| Fehlende Ist-Fertigstellung | 126 |
-| Zieltermin vor Erfassungsdatum | 3 |
-| Ist-Fertigstellung vor Erfassungsdatum | 1 |
-| Nicht abgeschlossene Fälle mit Ist-Fertigstellung | 11 |
-| Kosten-Ausreißer nach IQR-Methode | 9 |
-| Aufwand-Ausreißer nach IQR-Methode | 1 |
+| Abgeschlossen | 62 |
+| In Bearbeitung | 58 |
+| Offen | 43 |
+| Warten auf Rückmeldung | 20 |
+| Eskaliert | 13 |
+| **Gesamt** | **196** |
 
-Ein fehlendes Ist-Fertigstellungsdatum ist bei einem offenen Fall nicht automatisch ein Fehler. Es wurde deshalb im Kontext des Status bewertet.
+Besondere Aufmerksamkeit verdienen die 13 eskalierten Fälle sowie die 20 Fälle, bei denen eine Rückmeldung aussteht.
 
-### Datenqualitätskennzeichen
+---
 
-Anstatt problematische Zeilen sofort zu löschen, wurden separate Prüfkennzeichen angelegt:
+## 3. Operative Analyse
 
-- `DQ_Fehlender_Standort`
-- `DQ_Fehlender_Aufwand`
-- `DQ_Fehlende_Kosten`
-- `DQ_Fehlender_Ursache`
-- `DQ_Ziel_vor_Erfassung`
-- `DQ_Ist_vor_Erfassung`
-- `DQ_Status_Datum_Widerspruch`
-- `DQ_Dublette`
-- `DQ_Anzahl_Probleme`
-- `DQ_Status`
+![Operative Analyse](../screenshots/02_operativ.png)
 
-Beispiel für einen Status-Datum-Widerspruch in Power Query:
+### Zweck
 
-```powerquery
-if [Status] <> "Abgeschlossen"
-    and [Ist_Fertigstellung] <> null
-then 1
-else 0
-```
+Die Seite richtet sich an Serviceleitung, Teamleitung und operative Verantwortliche. Sie ermöglicht eine detailliertere Untersuchung nach Region, Standort, Status, Priorität, Produktgruppe und Fehlerkategorie.
 
-Die Summe der einzelnen Kennzeichen bildet `DQ_Anzahl_Probleme`. Fälle mit mindestens einem Problem erhalten den Status `Prüfbedarf`, alle anderen `Ohne Befund`.
+### Cases nach Region und Status
 
-## Standortstandardisierung
+Die Matrix verteilt die 196 eindeutigen Cases nach Region und Status. Regionen können bis auf Standortebene aufgeklappt werden.
 
-Die Servicefälle enthalten keine verlässliche Standort-ID, sondern unterschiedliche Namen, Abkürzungen und Sprachvarianten. Beispiele:
+Wesentliche Beobachtungen:
 
-| Rohwerte | Masterwert |
-|---|---|
-| Köln, Koeln, Cologne | Koeln |
-| Muenchen, Munich, MUC | Muenchen |
-| Stuttgart, Stuttg., STR | Stuttgart |
-| Prag, Prague, Praha | Prag |
-| Warschau, Warsaw, Warszawa | Warschau |
+- `Sued` besitzt mit 34 Cases das höchste gesamte Fallaufkommen.
+- `Nord` folgt mit 31 Cases.
+- `West` besitzt 29 Cases, davon 15 abgeschlossene Fälle.
+- `Suedwest` weist vier eskalierte Fälle auf.
+- Fünf Cases können wegen fehlender Standortangaben keiner Region zugeordnet werden.
 
-Zur Harmonisierung wurde die Tabelle `Mapping_Standorte` erstellt. `Fact_Service_Cases` wurde per linkem äußeren Join über `Standort_Roh` mit dieser Mappingtabelle verbunden. Anschließend wurde der standardisierte `Standort_Master` mit `Dim_Standorte` verknüpft und die `Standort_ID` übernommen.
+### Überfällige Cases nach Priorität
 
-Das Ergebnis des Mapping-Joins war:
+Die 111 überfälligen offenen Cases verteilen sich ungefähr wie folgt:
 
-- 195 von 200 Zeilen konnten einem Masterstandort zugeordnet werden.
-- Die verbleibenden fünf Zeilen besitzen keinen Standort-Rohwert und wurden als Qualitätsproblem gekennzeichnet.
-- Fuzzy Matching wurde bewusst nicht als finale Logik verwendet, da ein explizites Mapping reproduzierbarer und auditierbarer ist.
-
-## Standardisierung der Verantwortungsbereiche
-
-Auch die verantwortlichen Bereiche lagen in unterschiedlichen Schreibweisen vor:
-
-| Rohwert | Standardwert |
-|---|---|
-| `Service Ops` | `Service Operations` |
-| `Field-Service` | `Field Service` |
-| `Cust. Service` | `Customer Service` |
-| `QS` | `Quality Support` |
-
-Die Rohspalte wurde beibehalten und zusätzlich eine bereinigte Spalte erzeugt. Abweichungen zwischen der fallbezogenen Zuständigkeit und dem Stammdatenbereich eines Standorts wurden nicht automatisch überschrieben. Ohne fachliche Rücksprache ist nicht eindeutig, ob es sich dabei um einen Datenfehler oder eine legitime abweichende Fallzuständigkeit handelt.
-
-## Dublettenbehandlung
-
-Folgende Case-IDs kommen jeweils zweimal vor:
-
-- `SC-2026-0023`
-- `SC-2026-0086`
-- `SC-2026-0139`
-- `SC-2026-0174`
-
-Es handelt sich nicht um vollständig identische Zeilen. Die Datensätze unterscheiden sich teilweise bei Quelle oder Bemerkung. Deshalb wurden sie zunächst in der Qualitätsanalyse beibehalten und gekennzeichnet.
-
-Für die operative Analysetabelle wurde pro Case-ID ein Datensatz ausgewählt. Dafür wurde folgende angenommene Quellenpriorität verwendet:
-
-| Quelle | Priorität |
+| Priorität | Überfällige Cases |
 |---|---:|
-| ERP Export | 1 |
-| Portal | 2 |
-| Partner Upload | 3 |
-| E-Mail Import | 4 |
-| Manuelle Liste | 5 |
+| B | 40 |
+| A | 36 |
+| C | 35 |
 
-Power-Query-Logik:
+Die fachliche Rangfolge der Prioritäten ist in den Quelldaten nicht definiert. Für eine risikobasierte Bewertung müsste diese Rangfolge fachlich bestätigt werden.
 
-```powerquery
-if [Quelle] = "ERP Export" then 1
-else if [Quelle] = "Portal" then 2
-else if [Quelle] = "Partner Upload" then 3
-else if [Quelle] = "E-Mail Import" then 4
-else if [Quelle] = "Manuelle Liste" then 5
-else 99
-```
+### Fehlerkategorie nach Produktgruppe
 
-Die Tabelle wurde nach `Case_ID` und `Quellenprioritaet` sortiert, gepuffert und anschließend anhand der `Case_ID` dedupliziert. Dadurch entstanden 196 eindeutige Servicefälle.
+Das 100-%-gestapelte Balkendiagramm zeigt, wie sich die Produktgruppen `Alpha`, `Beta`, `Delta`, `Epsilon` und `Gamma` innerhalb der einzelnen Fehlerkategorien verteilen.
 
-Diese Quellenpriorisierung ist eine methodische Annahme der Fallstudie. In einem produktiven System müsste die Golden-Record-Regel mit den fachlich Verantwortlichen abgestimmt werden.
+Erkennbar ist unter anderem:
 
-## Behandlung von Ausreißern ==> (WURDE IM PROJEKT AUS ZEITGRÜNDEN NICHT GEMACHT)
+- Prozessfälle betreffen alle Produktgruppen.
+- Logistikfälle konzentrieren sich vergleichsweise stark auf `Delta`.
+- Softwarefälle besitzen einen hohen Anteil der Produktgruppe `Alpha`.
+- Die Zusammensetzung unterscheidet sich je Fehlerkategorie.
 
-Ausreißer wurden über die Interquartilsabstandsmethode geprüft:
+Das Diagramm zeigt relative Anteile. Die absolute Größe einer Fehlerkategorie muss deshalb ergänzend über die Case-Anzahl beurteilt werden.
 
-```text
-IQR = Q3 - Q1
-Untere Grenze = Q1 - 1,5 × IQR
-Obere Grenze = Q3 + 1,5 × IQR
-```
+### Case-Detailtabelle
 
-Für `Kosten_EUR` lag die obere Grenze bei ungefähr 4.609 EUR. Neun Datensätze lagen darüber. Beim Aufwand wurde ein Fall als IQR-Ausreißer identifiziert.
+Die Detailtabelle zeigt einzelne Servicefälle mit Case-ID, Masterstandort, Status, Priorität, Zieltermin, Ist-Fertigstellungsdatum, Aufwand und Kosten.
 
-Die betroffenen Datensätze wurden nicht automatisch entfernt. Ein hoher Aufwand oder hohe Kosten können geschäftlich reale und besonders relevante Fälle darstellen. Ausreißer sind daher als Prüf- und Analysemerkmal zu verstehen, nicht automatisch als fehlerhafte Daten.
+Sie ermöglicht den Wechsel von der aggregierten Darstellung zum einzelnen Case. Nach Auswahl einer Region oder Priorität können die betroffenen Vorgänge direkt identifiziert und operativ geprüft werden.
 
-## Datenmodell
+---
 
-Das Power-BI-Modell wurde als vereinfachtes Sternschema aufgebaut:
+## 4. Datenqualität
 
-- `Fact_Service_Cases_Analyse` als Faktentabelle
-- `Dim_Standorte` als Standortdimension
-- `Dim_Datum` als zentrale Datumstabelle
+![Datenqualität](../screenshots/03_datenqualitaet.png)
 
-Beziehungen:
+### Zweck
 
-| Dimension | Faktentabelle | Kardinalität | Status |
-|---|---|---|---|
-| `Dim_Standorte[Standort_ID]` | `Fact_Service_Cases_Analyse[Standort_ID]` | 1:n | aktiv |
-| `Dim_Datum[Date]` | `Fact_Service_Cases_Analyse[Erfassungsdatum]` | 1:n | aktiv |
-| `Dim_Datum[Date]` | `Fact_Service_Cases_Analyse[Zielfertigstellung]` | 1:n | inaktiv |
-| `Dim_Datum[Date]` | `Fact_Service_Cases_Analyse[Ist_Fertigstellung]` | 1:n | inaktiv |
+Die Seite zeigt Einschränkungen der Rohdaten und schafft Transparenz über die Belastbarkeit der Managementkennzahlen. Sie basiert auf allen 200 Rohzeilen.
 
-Die Filterrichtung ist jeweils einzeln von der Dimension zur Faktentabelle. Viele-zu-viele-Beziehungen wurden vermieden.
+### Zentrale Qualitätskennzahlen
 
-### Datumstabelle
+| Qualitätsproblem | Anzahl | Auswirkung |
+|---|---:|---|
+| Fehlende Standorte | 5 | Keine Standort- oder Regionszuordnung möglich |
+| Fehlende Kosten | 5 | Gesamtkosten möglicherweise untererfasst |
+| Zusätzliche Dublettenzeilen | 4 | Gefahr einer Mehrfachzählung |
+| Fehlender Aufwand | 10 | Aufwand und Kapazitätsbedarf möglicherweise untererfasst |
+| Status-Datum-Widersprüche | 11 | Nicht abgeschlossene Cases besitzen ein Ist-Fertigstellungsdatum |
 
-```DAX
-Dim_Datum =
-ADDCOLUMNS(
-    CALENDAR(DATE(2026, 1, 1), DATE(2026, 12, 31)),
-    "Jahr", YEAR([Date]),
-    "Monatsnummer", MONTH([Date]),
-    "Monat", FORMAT([Date], "MMM"),
-    "JahrMonat", FORMAT([Date], "YYYY-MM"),
-    "Quartal", "Q" & FORMAT([Date], "Q")
-)
-```
+### Fehlende Standorte
 
-`Dim_Datum` wurde in Power BI als Datumstabelle markiert. Die aktive Beziehung über das Erfassungsdatum steuert die Standard-Zeitanalyse. Ziel- und Ist-Datum stehen über inaktive Beziehungen für spezifische Measures zur Verfügung.
+Fünf Datensätze besitzen keinen Standortwert. Dadurch können sie keinem Masterstandort, keiner Region und keinen Standortstammdaten wie Kapazität, Budget oder Kostenstelle zugeordnet werden.
 
-## Berichtsdatum
+### Fehlende Kosten und Aufwände
 
-Da kein expliziter Datenstichtag vorgegeben wurde, wird das maximale Erfassungsdatum des Datensatzes als Berichtsdatum verwendet:
+Fünf Datensätze enthalten keine Kostenangabe und zehn Datensätze keinen Aufwand. Die Werte wurden nicht durch null ersetzt, da null einen bekannten Wert von null Euro beziehungsweise null Stunden bedeuten würde. Ein leerer Wert steht dagegen für eine unbekannte oder nicht gepflegte Angabe.
 
-```DAX
-Berichtsdatum =
-CALCULATE(
-    MAX(Fact_Service_Cases_Analyse[Erfassungsdatum]),
-    REMOVEFILTERS(Fact_Service_Cases_Analyse)
-)
-```
+### Dubletten
 
-Das Ergebnis ist der 15.06.2026. Diese Annahme verhindert, dass offene Fälle anhand des jeweils aktuellen Systemdatums nachträglich als überfällig eingestuft werden.
+Die Rohdatentabelle enthält 200 Zeilen, aber nur 196 eindeutige Case-IDs. Daraus ergeben sich vier zusätzliche Dublettenzeilen.
 
-## Zentrale DAX-Kennzahlen
+Die betroffenen Zeilen sind nicht vollständig identisch. Für die operative Analyse wurde pro Case-ID nach einer dokumentierten Quellenpriorität ein Datensatz ausgewählt. In der Qualitätsanalyse bleiben alle Vorkommen sichtbar.
 
-### Anzahl eindeutiger Cases
+### Status-Datum-Widersprüche
 
-```DAX
-Anzahl Cases =
-DISTINCTCOUNT(Fact_Service_Cases_Analyse[Case_ID])
-```
+Elf Cases besitzen ein Ist-Fertigstellungsdatum, obwohl ihr Status nicht `Abgeschlossen` lautet. Dies kann auf eine fehlende Statusaktualisierung, ein falsch gepflegtes Datum oder unterschiedliche Datenstände der Quellsysteme hinweisen.
 
-### Abgeschlossene Cases
+Die betroffenen Werte wurden nicht automatisch korrigiert, da ohne fachliche Geschäftsregel nicht eindeutig entschieden werden kann, welches Feld korrekt ist.
 
-```DAX
-Abgeschlossene Cases =
-CALCULATE(
-    [Anzahl Cases],
-    Fact_Service_Cases_Analyse[Status] = "Abgeschlossen"
-)
-```
+### Qualitätsdetailtabelle
 
-### Offener Bestand
+Die Detailtabelle zeigt pro Rohdatensatz die Case-ID, Quelle, Standortangabe, den Dublettenstatus und die einzelnen Datenqualitätskennzeichen. Damit kann jede Qualitätskennzahl bis zum betroffenen Datensatz zurückverfolgt werden.
 
-```DAX
-Offener Bestand =
-CALCULATE(
-    [Anzahl Cases],
-    Fact_Service_Cases_Analyse[Status] <> "Abgeschlossen"
-)
-```
+Die Summe `DQ_Anzahl_Probleme` beschreibt die Gesamtzahl erkannter Qualitätsverletzungen. Sie ist nicht mit der Anzahl betroffener Cases gleichzusetzen, da ein Case mehrere Probleme gleichzeitig besitzen kann.
 
-### Abschlussquote
+---
 
-```DAX
-Abschlussquote =
-DIVIDE([Abgeschlossene Cases], [Anzahl Cases])
-```
+## 5. Zusammenspiel der Dashboardseiten
 
-### Gesamtkosten
+| Seite | Kernfrage | Zielgruppe |
+|---|---|---|
+| Management Overview | Wie ist die aktuelle Gesamtsituation? | Management |
+| Operative Analyse | Wo entstehen Rückstände und Auffälligkeiten? | Service- und Teamleitung |
+| Datenqualität | Wie belastbar sind die Kennzahlen? | BI, Data Owner und Management |
 
-```DAX
-Gesamtkosten =
-SUM(Fact_Service_Cases_Analyse[Kosten_EUR])
-```
+Der typische Analyseablauf ist:
 
-### Gesamtaufwand
+1. Eine Auffälligkeit wird auf der Managementseite erkannt.
+2. Die operative Seite grenzt die betroffenen Regionen, Prioritäten oder Fehlerkategorien ein.
+3. Die Detailtabelle identifiziert einzelne Case-IDs.
+4. Die Datenqualitätsseite zeigt, ob fehlende oder widersprüchliche Werte die Aussage einschränken.
 
-```DAX
-Gesamtaufwand Stunden =
-SUM(Fact_Service_Cases_Analyse[Aufwand_Std])
-```
+---
 
-### Überfällige offene Cases
+## 6. Zentrale Erkenntnisse
 
-```DAX
-Überfällige offene Cases =
-VAR Stichtag = [Berichtsdatum]
-RETURN
-    CALCULATE(
-        [Anzahl Cases],
-        FILTER(
-            Fact_Service_Cases_Analyse,
-            Fact_Service_Cases_Analyse[Status] <> "Abgeschlossen"
-                && NOT ISBLANK(Fact_Service_Cases_Analyse[Zielfertigstellung])
-                && Fact_Service_Cases_Analyse[Zielfertigstellung] < Stichtag
-        )
-    )
-```
+- Von 196 eindeutigen Servicefällen sind 134 noch nicht abgeschlossen.
+- Die Abschlussquote beträgt 31,6 %.
+- Zum Datenstand vom 15.06.2026 sind 111 offene Cases überfällig.
+- Prozessbezogene Fehler verursachen das höchste Kostenvolumen.
+- Der offene Bestand konzentriert sich besonders auf die Regionen `Nord` und `Sued`.
+- Mehrere Standorte besitzen einen auffällig hohen offenen Bestand.
+- Die Datenbasis enthält relevante Qualitätsprobleme, die bei der Interpretation berücksichtigt werden müssen.
 
-### Verspätet abgeschlossene Cases
+Zusammenfassende Managementaussage:
 
-```DAX
-Verspätet abgeschlossen =
-CALCULATE(
-    [Anzahl Cases],
-    FILTER(
-        Fact_Service_Cases_Analyse,
-        Fact_Service_Cases_Analyse[Status] = "Abgeschlossen"
-            && Fact_Service_Cases_Analyse[Ist_Fertigstellung]
-                > Fact_Service_Cases_Analyse[Zielfertigstellung]
-    )
-)
-```
+> Der Bericht zeigt einen hohen offenen Bestand und eine große Anzahl überfälliger Servicefälle. Besonders die Regionen Nord und Süd sowie Standorte mit hohem Bearbeitungsrückstand sollten operativ untersucht werden. Prozessbezogene Fehler stellen den größten Kostenblock dar. Gleichzeitig müssen die Ergebnisse unter Berücksichtigung der dokumentierten Datenqualitätsprobleme interpretiert werden.
 
-### Termintreue
+---
 
-```DAX
-Termintreue =
-DIVIDE(
-    [Abgeschlossene Cases] - [Verspätet abgeschlossen],
-    [Abgeschlossene Cases]
-)
-```
+## 7. Annahmen und Einschränkungen
 
-### Durchschnittliche Durchlaufzeit
+- Die Daten sind synthetisch und bilden keine reale Unternehmensperformance ab.
+- Das Berichtsdatum wurde aus dem maximalen Erfassungsdatum abgeleitet.
+- Die Quellenpriorität zur Dublettenbehandlung ist eine methodische Annahme und nicht fachlich bestätigt.
+- Die Rangfolge der Prioritäten `A`, `B` und `C` ist nicht definiert.
+- Fehlende Werte wurden nicht automatisch durch null ersetzt.
+- Auffällige Kosten- und Aufwandswerte wurden nicht pauschal gelöscht.
+- Der Juni 2026 ist nur bis zum 15.06.2026 enthalten.
+- Ohne fachliche Sollwerte kann aus der Abschlussquote allein keine abschließende Leistungsbewertung abgeleitet werden.
 
-```DAX
-Durchschnittliche Durchlaufzeit =
-AVERAGEX(
-    FILTER(
-        Fact_Service_Cases_Analyse,
-        Fact_Service_Cases_Analyse[Status] = "Abgeschlossen"
-            && NOT ISBLANK(Fact_Service_Cases_Analyse[Ist_Fertigstellung])
-    ),
-    DATEDIFF(
-        Fact_Service_Cases_Analyse[Erfassungsdatum],
-        Fact_Service_Cases_Analyse[Ist_Fertigstellung],
-        DAY
-    )
-)
-```
+---
 
-## Dashboardaufbau
+## 8. Fazit
 
-### Seite 1: Management Overview
+Das Dashboard verbindet Managementübersicht, operative Detailanalyse und Datenqualitätskontrolle in einem Bericht. Dadurch können Auffälligkeiten nicht nur erkannt, sondern bis auf Regionen, Standorte und einzelne Servicefälle zurückverfolgt werden.
 
-Die Übersichtsseite verdichtet die wichtigsten Managementinformationen.
-
-KPI-Karten:
-
-- Anzahl eindeutiger Cases
-- offener Bestand
-- Abschlussquote
-- überfällige offene Cases
-- Gesamtkosten
-- dynamischer Datenstand
-
-Visualisierungen:
-
-- Cases nach Status
-- neu erfasste Cases nach Monat
-- offene Cases nach Region
-- Top-5-Standorte nach offenem Bestand
-- Kosten nach Fehlerkategorie
-
-Slicer:
-
-- Zeitraum
-- Region
-- Standort
-- Priorität
-- Produktgruppe
-
-### Seite 2: Operative Analyse
-
-Die operative Seite ermöglicht eine detailliertere Ursachen- und Standortanalyse.
-
-Visualisierungen:
-
-- Matrix Region → Standort → Status
-- überfällige Cases nach Priorität
-- Fehlerkategorien nach Produktgruppe
-- Aufwand-Kosten-Streudiagramm nach Komplexität
-- Case-Detailtabelle mit Status, Terminen, Aufwand und Kosten
-
-Für überfällige und eskalierte Fälle wird bedingte Formatierung eingesetzt.
-
-### Seite 3: Datenqualität
-
-Die Qualitätsseite basiert auf der vollständigen Tabelle mit 200 Rohdatensätzen. Sie macht transparent, welche Probleme vor der Managementanalyse berücksichtigt wurden.
-
-KPI-Karten:
-
-- zusätzliche Dublettenzeilen
-- fehlende Standorte
-- fehlende Aufwände
-- fehlende Kosten
-- Datumsfehler
-- Status-Datum-Widersprüche
-
-Visualisierungen:
-
-- Qualitätsprobleme nach Art
-- Qualitätsprobleme nach Eingangsquelle
-- Detailtabelle mit Case-ID und sämtlichen DQ-Kennzeichen
-- Gegenüberstellung von Standort-Rohwert und Masterstandort
+Die Datenqualitätsseite macht gleichzeitig transparent, welche Einschränkungen bei der Interpretation bestehen. Die dargestellten Ergebnisse bilden damit eine nachvollziehbare Grundlage für weitere fachliche Prüfungen und operative Entscheidungen.
