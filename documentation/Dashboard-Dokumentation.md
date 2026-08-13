@@ -2,200 +2,69 @@
 
 ## 1. Zielsetzung
 
-Das Power-BI-Dashboard analysiert synthetische Service-Case-Daten eines international tätigen Unternehmens. Ziel ist es, die operative Bearbeitung der Servicefälle transparent darzustellen und gleichzeitig auf Einschränkungen der Datenqualität hinzuweisen.
-
-Der Bericht beantwortet insbesondere folgende Fragen:
-
-- Wie viele eindeutige Servicefälle liegen vor?
-- Wie viele Fälle sind abgeschlossen, offen, in Bearbeitung oder eskaliert?
-- Wie groß ist der überfällige offene Bestand?
-- In welchen Regionen und Standorten konzentrieren sich die offenen Fälle?
-- Welche Fehlerkategorien verursachen die höchsten Kosten?
-- Wie verteilen sich Fehlerkategorien auf die Produktgruppen?
-- Welche fehlenden, doppelten oder widersprüchlichen Daten wurden festgestellt?
+Das Power-BI-Dashboard analysiert synthetische Service-Case-Daten eines international tätigen Unternehmens. Ziel ist es, den Bearbeitungsstand, die Terminsituation, die Kostenverteilung und die Datenqualität transparent darzustellen.
 
 Der Bericht besteht aus drei Seiten:
 
-1. **Management Overview** – Gesamtüberblick und zentrale Steuerungskennzahlen
+1. **Management Overview** – zentrale Kennzahlen und Gesamtüberblick
 2. **Operative Analyse** – Detailanalyse nach Region, Priorität und Fehlerstruktur
-3. **Datenqualität** – Darstellung der erkannten Qualitätsprobleme
+3. **Datenqualität** – Übersicht über fehlende, doppelte und widersprüchliche Daten
+
+Die Rohdatentabelle enthält 200 Zeilen. Da vier Case-IDs jeweils doppelt vorkommen, stehen für die operative Analyse 196 eindeutige Servicefälle zur Verfügung. Die Datenqualitätsseite verwendet weiterhin alle 200 Rohzeilen, damit die Dubletten sichtbar bleiben.
+
+Als Berichtsdatum wird der **15.06.2026** verwendet. Dieses Datum entspricht dem maximalen Erfassungsdatum im Datensatz. Ein Fall gilt als überfällig, wenn sein Status nicht `Abgeschlossen` ist und sein Zieltermin vor diesem Berichtsdatum liegt.
 
 ---
 
-## 2. Fachliche Grundlage
-
-Die Rohdatentabelle enthält 200 Zeilen. Da vier Case-IDs jeweils doppelt vorkommen, stehen für die operative Analyse 196 eindeutige Servicefälle zur Verfügung.
-
-Die Seite **Datenqualität** verwendet weiterhin alle 200 Rohzeilen, damit Dubletten und weitere Qualitätsprobleme sichtbar bleiben. Die Seiten **Management Overview** und **Operative Analyse** verwenden dagegen die deduplizierte Tabelle mit 196 eindeutigen Case-IDs.
-
-### Berichtsdatum
-
-Als Berichtsdatum wird der **15.06.2026** verwendet. Dieses Datum entspricht dem maximalen Erfassungsdatum im Datensatz. Ein separater fachlicher Datenstichtag wurde in der Aufgabenstellung nicht vorgegeben.
-
-Ein Servicefall gilt in dieser Auswertung als überfällig, wenn:
-
-- sein Status nicht `Abgeschlossen` ist und
-- sein Zieltermin vor dem 15.06.2026 liegt.
-
-Durch die Verwendung eines festen, aus dem Datensatz abgeleiteten Berichtsdatums bleiben die Ergebnisse reproduzierbar. Das aktuelle Systemdatum wird bewusst nicht verwendet.
-
----
-
-## 3. Dashboardseite „Management Overview“
+## 2. Management Overview
 
 ![Management Overview](../screenshots/01_management_overview.png)
 
-### 3.1 Zweck der Seite
+### Zweck
 
-Die Seite **Management Overview** richtet sich primär an Führungskräfte und Entscheidungsträger. Sie verdichtet die wichtigsten Informationen zu Fallbestand, Bearbeitungsfortschritt, Terminsituation und Kosten auf einer Seite.
+Die Seite richtet sich an Führungskräfte und bietet einen kompakten Überblick über Fallbestand, Bearbeitungsfortschritt, Terminsituation und Kosten.
 
-### 3.2 Filterbereich
+Über die Filter **Region**, **Standort**, **Priorität**, **Produktgruppe** und **Zeitraum** kann die Analyse auf bestimmte Bereiche eingeschränkt werden.
 
-Auf der linken Seite stehen folgende Filter zur Verfügung:
+### Zentrale Kennzahlen
 
-- Region
-- Standort
-- Priorität
-- Produktgruppe
-- Zeitraum
+| Kennzahl | Wert | Bedeutung |
+|---|---:|---|
+| Anzahl Cases | 196 | Eindeutige Servicefälle nach der Dublettenbereinigung |
+| Offener Bestand | 134 | Alle Cases, deren Status nicht `Abgeschlossen` ist |
+| Abschlussquote | 31,6 % | Anteil der 62 abgeschlossenen Cases an allen 196 Cases |
+| Überfällige offene Cases | 111 | Offene Cases mit Zieltermin vor dem 15.06.2026 |
+| Gesamtkosten | ca. 375.467 EUR | Summe der vorhandenen Kostenwerte |
 
-Mit diesen Filtern können die Kennzahlen und Diagramme auf bestimmte organisatorische oder fachliche Teilbereiche eingeschränkt werden. Beispielsweise kann ausschließlich die Region `Nord`, ein einzelner Standort oder eine bestimmte Produktgruppe analysiert werden.
+Der offene Bestand umfasst die Statuswerte `Offen`, `In Bearbeitung`, `Warten auf Rückmeldung` und `Eskaliert`. Von den 134 offenen Cases sind 111 überfällig. Das entspricht ungefähr 82,8 % des offenen Bestands und deutet auf einen erheblichen Bearbeitungsrückstand hin.
 
-Der Zeitraumfilter bezieht sich standardmäßig auf das Erfassungsdatum der Servicefälle. Das Berichtsdatum bleibt unabhängig von den gesetzten Filtern unverändert.
+Die Gesamtkosten können aufgrund von fünf fehlenden Kostenwerten unvollständig sein. Sie entsprechen daher der Summe der dokumentierten Kosten und nicht zwingend den vollständig entstandenen Kosten.
 
-### 3.3 KPI „Anzahl Cases“
+### Offener Bestand nach Region
 
-**Wert: 196**
+Das Diagramm zeigt, in welchen Regionen sich die noch nicht abgeschlossenen Fälle konzentrieren. `Nord` besitzt den höchsten offenen Bestand, gefolgt von `Sued`. Fälle ohne zuordenbaren Standort erscheinen unter `(Leer)`.
 
-Die Kennzahl zeigt die Anzahl der eindeutigen Servicefälle nach der Dublettenbereinigung. Sie basiert auf einem `DISTINCTCOUNT` der Case-ID in der bereinigten Analysetabelle.
+Die absoluten Werte sollten für eine Kapazitätsbeurteilung zusätzlich in Relation zum gesamten Fallaufkommen und zur monatlichen Kapazität der Standorte gesetzt werden.
 
-Die Kennzahl beantwortet:
+### Gesamtkosten nach Fehlerkategorie
 
-> Wie viele unterschiedliche Servicefälle enthält die analysierte Datenbasis?
+Die Fehlerkategorie `Prozess` verursacht mit ungefähr 112.673 EUR das höchste Kostenvolumen. Danach folgen insbesondere `Software` und `Elektrik`.
 
-### 3.4 KPI „Offener Bestand“
+Prozessbezogene Servicefälle stellen damit den größten Kostenblock dar und sollten hinsichtlich wiederkehrender Ursachen und möglicher Prozessverbesserungen vertieft untersucht werden.
 
-**Wert: 134**
+### Anzahl Cases nach Monat
 
-Zum offenen Bestand zählen alle Fälle, deren Status nicht `Abgeschlossen` lautet. Dazu gehören:
+Das Liniendiagramm zeigt die Anzahl neu erfasster Servicefälle pro Monat. Damit wird die Entwicklung des Case-Eingangs im Zeitverlauf sichtbar.
 
-- Offen
-- In Bearbeitung
-- Warten auf Rückmeldung
-- Eskaliert
+Da der Datenstand am 15.06.2026 endet, ist Juni kein vollständiger Monat. Ein niedriger Juniwert darf deshalb nicht ohne weitere Prüfung als tatsächlicher Rückgang interpretiert werden.
 
-Damit sind 134 von 196 eindeutigen Fällen noch nicht abgeschlossen. Das entspricht rund 68,4 % des gesamten Fallbestands.
+### Standorte nach offenem Bestand
 
-Die Kennzahl zeigt einen hohen noch zu bearbeitenden Bestand. Sie ist jedoch nicht isoliert als Leistungsdefizit zu interpretieren, da keine Sollquote oder ein vollständig definierter Beobachtungszeitraum vorliegt.
+Das Diagramm zeigt die Standorte mit den meisten nicht abgeschlossenen Fällen. Besonders auffällig sind Frankfurt, Hannover, Lyon, Berlin Nord, Dortmund und Leipzig.
 
-### 3.5 KPI „Abschlussquote“
+Die Darstellung unterstützt die operative Priorisierung von Standorten mit einem hohen Bearbeitungsrückstand. Für eine abschließende Bewertung sollte auch die jeweilige Standortkapazität berücksichtigt werden.
 
-**Wert: 31,6 %**
-
-Die Abschlussquote gibt den Anteil der abgeschlossenen Cases an allen eindeutigen Cases an:
-
-```text
-Abschlussquote = abgeschlossene Cases / alle eindeutigen Cases
-```
-
-Im Datensatz sind 62 von 196 Servicefällen abgeschlossen:
-
-```text
-62 / 196 = 31,6 %
-```
-
-Die Kennzahl beschreibt den aktuellen Bearbeitungsstand der Datenbasis.
-
-### 3.6 KPI „Überfällige offene Cases“
-
-**Wert: 111**
-
-Diese Kennzahl zählt offene Servicefälle, deren Zieltermin vor dem Berichtsdatum liegt. Von 134 offenen Fällen sind 111 überfällig. Das entspricht ungefähr 82,8 % des offenen Bestands.
-
-Der hohe Wert deutet auf einen erheblichen Bearbeitungsrückstand hin. Mögliche Ursachen könnten sein:
-
-- begrenzte Bearbeitungskapazität
-- ungeeignete Priorisierung
-- Abhängigkeiten von Kunden oder Partnern
-- Prozessprobleme
-- unrealistisch gesetzte Zieltermine
-- fehlerhafte Statuspflege
-
-Die Daten zeigen jedoch nicht eindeutig, welche dieser Ursachen tatsächlich vorliegt. Dafür wäre eine fachliche Ursachenanalyse notwendig.
-
-### 3.7 KPI „Gesamtkosten“
-
-**Wert: ungefähr 375.467 EUR**
-
-Die Kennzahl summiert die vorhandenen Werte aus `Kosten_EUR` für die 196 eindeutigen Servicefälle.
-
-Da fünf Rohdatensätze keinen Kostenwert besitzen, sind die Gesamtkosten möglicherweise unvollständig. Die Kennzahl ist daher als Summe der dokumentierten Kosten zu interpretieren.
-
-### 3.8 Diagramm „Offener Bestand nach Region“
-
-Das Säulendiagramm zeigt die Verteilung der noch nicht abgeschlossenen Fälle auf die Regionen.
-
-Aus der Darstellung wird sichtbar:
-
-- Die Region `Nord` besitzt den höchsten offenen Bestand.
-- Danach folgt die Region `Sued`.
-- `Ost` und `West` liegen im mittleren Bereich.
-- Die Kategorie `(Leer)` enthält Fälle, denen wegen eines fehlenden Standorts keine Region zugeordnet werden konnte.
-
-Das Diagramm beantwortet:
-
-> In welchen Regionen konzentriert sich der operative Bearbeitungsrückstand?
-
-Die absoluten Fallzahlen sollten ergänzend zur Standortkapazität betrachtet werden. Eine Region mit vielen offenen Fällen kann gleichzeitig auch ein besonders hohes gesamtes Fallaufkommen besitzen.
-
-### 3.9 Diagramm „Gesamtkosten nach Fehlerkategorie“
-
-Das Diagramm zeigt die Summe der Servicekosten je Fehlerkategorie.
-
-Die Fehlerkategorie `Prozess` verursacht mit ungefähr 112.673 EUR das höchste Kostenvolumen. Danach folgen insbesondere die Kategorien `Software` und `Elektrik`.
-
-Managementinterpretation:
-
-> Prozessbezogene Servicefälle stellen den größten Kostenblock dar und sollten hinsichtlich wiederkehrender Ursachen und möglicher Prozessverbesserungen vertieft untersucht werden.
-
-Hohe Gesamtkosten können sowohl durch viele einzelne Fälle als auch durch wenige sehr teure Fälle entstehen. Ergänzend sollte deshalb der Durchschnitt der Kosten je Case betrachtet werden.
-
-### 3.10 Diagramm „Anzahl Cases nach Jahr und Monat“
-
-Das Liniendiagramm zeigt die Anzahl neu erfasster Servicefälle pro Monat. Es beantwortet:
-
-> Wie entwickelt sich der Eingang neuer Servicefälle im Zeitverlauf?
-
-Die X-Achse muss chronologisch sortiert sein:
-
-```text
-2026-01 → 2026-02 → 2026-03 → 2026-04 → 2026-05 → 2026-06
-```
-
-Da der Datenstand am 15.06.2026 endet, ist Juni kein vollständiger Monat. Ein niedrigerer Juniwert darf deshalb nicht ungeprüft als tatsächlicher Rückgang des Fallaufkommens interpretiert werden.
-
-### 3.11 Diagramm „Standorte nach offenem Bestand“
-
-Das Balkendiagramm zeigt die Standorte mit dem höchsten offenen Bestand. Auffällig sind insbesondere:
-
-- Frankfurt
-- Hannover
-- Lyon
-- Berlin Nord
-- Dortmund
-- Leipzig
-
-Frankfurt, Hannover und Lyon besitzen jeweils ungefähr zehn offene Fälle.
-
-Das Diagramm unterstützt die Frage:
-
-> An welchen Standorten ist der operative Bearbeitungsrückstand besonders hoch?
-
-Wenn durch einen Gleichstand sechs Standorte angezeigt werden, sollte der Titel nicht `Top-5-Standorte`, sondern beispielsweise `Standorte mit höchstem offenem Bestand` lauten. Alternativ muss das Ranking technisch auf exakt fünf Positionen begrenzt werden.
-
-### 3.12 Diagramm „Anzahl Cases nach Status“
-
-Das Diagramm zeigt die Statusverteilung der 196 eindeutigen Servicefälle:
+### Anzahl Cases nach Status
 
 | Status | Anzahl Cases |
 |---|---:|
@@ -206,321 +75,157 @@ Das Diagramm zeigt die Statusverteilung der 196 eindeutigen Servicefälle:
 | Eskaliert | 13 |
 | **Gesamt** | **196** |
 
-Besondere Aufmerksamkeit verdienen:
-
-- 13 eskalierte Fälle mit potenziell erhöhtem Handlungsbedarf
-- 20 Fälle, bei denen eine Rückmeldung aussteht
-- 43 offene Fälle, deren Bearbeitung möglicherweise noch nicht begonnen hat
+Besondere Aufmerksamkeit verdienen die 13 eskalierten Fälle sowie die 20 Fälle, bei denen eine Rückmeldung aussteht.
 
 ---
 
-## 4. Dashboardseite „Operative Analyse“
+## 3. Operative Analyse
 
 ![Operative Analyse](../screenshots/02_operativ.png)
 
-### 4.1 Zweck der Seite
+### Zweck
 
-Die Seite **Operative Analyse** richtet sich an Serviceleitung, Teamleitung und operative Verantwortliche. Sie ermöglicht eine detailliertere Untersuchung nach Region, Standort, Status, Priorität, Produktgruppe und Fehlerkategorie.
+Die Seite richtet sich an Serviceleitung, Teamleitung und operative Verantwortliche. Sie ermöglicht eine detailliertere Untersuchung nach Region, Standort, Status, Priorität, Produktgruppe und Fehlerkategorie.
 
-### 4.2 Matrix „Cases nach Region und Status“
+### Cases nach Region und Status
 
-Die Matrix verteilt die 196 eindeutigen Cases nach Region und Status. Die Spalten zeigen:
+Die Matrix verteilt die 196 eindeutigen Cases nach Region und Status. Regionen können bis auf Standortebene aufgeklappt werden.
 
-- Abgeschlossen
-- Eskaliert
-- In Bearbeitung
-- Offen
-- Warten auf Rückmeldung
-- Gesamt
-
-Über das Pluszeichen können die Regionen bis auf Standortebene aufgeklappt werden.
-
-Beobachtungen:
+Wesentliche Beobachtungen:
 
 - `Sued` besitzt mit 34 Cases das höchste gesamte Fallaufkommen.
 - `Nord` folgt mit 31 Cases.
 - `West` besitzt 29 Cases, davon 15 abgeschlossene Fälle.
 - `Suedwest` weist vier eskalierte Fälle auf.
-- Fünf Cases können aufgrund fehlender Standortangaben keiner Region zugeordnet werden.
+- Fünf Cases können wegen fehlender Standortangaben keiner Region zugeordnet werden.
 
-Die Matrix eignet sich zur Bestandssteuerung, da Gesamtvolumen und Statusverteilung gleichzeitig sichtbar sind.
+### Überfällige Cases nach Priorität
 
-### 4.3 Diagramm „Überfällige Cases nach Priorität“
+Die 111 überfälligen offenen Cases verteilen sich ungefähr wie folgt:
 
-Das Balkendiagramm verteilt die 111 überfälligen offenen Cases auf die Prioritätsklassen:
+| Priorität | Überfällige Cases |
+|---|---:|
+| B | 40 |
+| A | 36 |
+| C | 35 |
 
-- Priorität B: ungefähr 40 Cases
-- Priorität A: ungefähr 36 Cases
-- Priorität C: ungefähr 35 Cases
+Die fachliche Rangfolge der Prioritäten ist in den Quelldaten nicht definiert. Für eine risikobasierte Bewertung müsste diese Rangfolge fachlich bestätigt werden.
 
-Das Diagramm beantwortet:
+### Fehlerkategorie nach Produktgruppe
 
-> In welchen Prioritätsklassen konzentriert sich der überfällige Bestand?
+Das 100-%-gestapelte Balkendiagramm zeigt, wie sich die Produktgruppen `Alpha`, `Beta`, `Delta`, `Epsilon` und `Gamma` innerhalb der einzelnen Fehlerkategorien verteilen.
 
-Die fachliche Rangfolge der Prioritäten ist in den Quelldaten nicht definiert. Es wurde daher nicht angenommen, ob `A`, `B` oder `C` die höchste Priorität darstellt. Vor einer risikobasierten Interpretation müsste die Rangfolge fachlich bestätigt werden.
-
-### 4.4 Diagramm „Fehlerkategorie nach Produktgruppe“
-
-Das 100-%-gestapelte Balkendiagramm zeigt für jede Fehlerkategorie die prozentuale Verteilung auf die Produktgruppen:
-
-- Alpha
-- Beta
-- Delta
-- Epsilon
-- Gamma
-
-Das Diagramm beantwortet:
-
-> Welche Produktgruppen tragen innerhalb einer Fehlerkategorie besonders stark zum Fallaufkommen bei?
-
-Aus der Darstellung wird beispielsweise sichtbar:
+Erkennbar ist unter anderem:
 
 - Prozessfälle betreffen alle Produktgruppen.
-- Logistikfälle konzentrieren sich besonders stark auf `Delta`.
-- Softwarefälle besitzen einen vergleichsweise hohen Anteil der Produktgruppe `Alpha`.
-- Die Produktzusammensetzung unterscheidet sich zwischen den Fehlerkategorien.
+- Logistikfälle konzentrieren sich vergleichsweise stark auf `Delta`.
+- Softwarefälle besitzen einen hohen Anteil der Produktgruppe `Alpha`.
+- Die Zusammensetzung unterscheidet sich je Fehlerkategorie.
 
-Da es sich um ein 100-%-Diagramm handelt, werden relative Anteile und nicht direkt die absoluten Fallzahlen dargestellt. Eine kleine Fehlerkategorie kann dadurch optisch genauso breit erscheinen wie eine große Kategorie. Absolute Fallzahlen sollten über Tooltips oder zusätzliche Datenbeschriftungen verfügbar sein.
+Das Diagramm zeigt relative Anteile. Die absolute Größe einer Fehlerkategorie muss deshalb ergänzend über die Case-Anzahl beurteilt werden.
 
-### 4.5 Case-Detailtabelle
+### Case-Detailtabelle
 
-Die Detailtabelle zeigt einzelne Servicefälle mit operativ relevanten Informationen:
+Die Detailtabelle zeigt einzelne Servicefälle mit Case-ID, Masterstandort, Status, Priorität, Zieltermin, Ist-Fertigstellungsdatum, Aufwand und Kosten.
 
-- Case-ID
-- Masterstandort
-- Status
-- Priorität
-- Zieltermin
-- Ist-Fertigstellungsdatum
-- Aufwand
-- Kosten
-
-Die Tabelle ermöglicht den Wechsel von der aggregierten Analyse zum einzelnen Case. Wird beispielsweise in einem Diagramm eine Region oder Priorität ausgewählt, wird die Detailtabelle automatisch auf die betroffenen Fälle eingeschränkt.
-
-Typischer Analyseablauf:
-
-1. Auffällige Region oder Priorität auswählen.
-2. Betroffene Case-IDs in der Detailtabelle identifizieren.
-3. Status und Zieltermin prüfen.
-4. Überfällige oder eskalierte Vorgänge operativ nachverfolgen.
+Sie ermöglicht den Wechsel von der aggregierten Darstellung zum einzelnen Case. Nach Auswahl einer Region oder Priorität können die betroffenen Vorgänge direkt identifiziert und operativ geprüft werden.
 
 ---
 
-## 5. Dashboardseite „Datenqualität“
+## 4. Datenqualität
 
 ![Datenqualität](../screenshots/03_datenqualitaet.png)
 
-### 5.1 Zweck der Seite
+### Zweck
 
-Die Seite **Datenqualität** zeigt, welche Einschränkungen in den Rohdaten bestehen. Sie basiert bewusst auf allen 200 Rohzeilen, damit auch Dubletten und problematische Datensätze sichtbar bleiben.
+Die Seite zeigt Einschränkungen der Rohdaten und schafft Transparenz über die Belastbarkeit der Managementkennzahlen. Sie basiert auf allen 200 Rohzeilen.
 
-Die Seite beantwortet:
+### Zentrale Qualitätskennzahlen
 
-> Wie belastbar ist die Datenbasis, auf der die Managementkennzahlen beruhen?
+| Qualitätsproblem | Anzahl | Auswirkung |
+|---|---:|---|
+| Fehlende Standorte | 5 | Keine Standort- oder Regionszuordnung möglich |
+| Fehlende Kosten | 5 | Gesamtkosten möglicherweise untererfasst |
+| Zusätzliche Dublettenzeilen | 4 | Gefahr einer Mehrfachzählung |
+| Fehlender Aufwand | 10 | Aufwand und Kapazitätsbedarf möglicherweise untererfasst |
+| Status-Datum-Widersprüche | 11 | Nicht abgeschlossene Cases besitzen ein Ist-Fertigstellungsdatum |
 
-### 5.2 KPI „Fehlende Standorte“
+### Fehlende Standorte
 
-**Wert: 5**
+Fünf Datensätze besitzen keinen Standortwert. Dadurch können sie keinem Masterstandort, keiner Region und keinen Standortstammdaten wie Kapazität, Budget oder Kostenstelle zugeordnet werden.
 
-Fünf Datensätze besitzen keinen Wert in `Standort_Roh`.
+### Fehlende Kosten und Aufwände
 
-Auswirkungen:
+Fünf Datensätze enthalten keine Kostenangabe und zehn Datensätze keinen Aufwand. Die Werte wurden nicht durch null ersetzt, da null einen bekannten Wert von null Euro beziehungsweise null Stunden bedeuten würde. Ein leerer Wert steht dagegen für eine unbekannte oder nicht gepflegte Angabe.
 
-- keine Zuordnung zu einem Masterstandort
-- keine regionale Analyse möglich
-- keine Verbindung zu Kapazität und Budget des Standorts
-- keine Zuordnung zu Kostenstelle oder Manager-Code
+### Dubletten
 
-In regionalen Visualisierungen erscheinen diese Fälle unter `(Leer)`.
+Die Rohdatentabelle enthält 200 Zeilen, aber nur 196 eindeutige Case-IDs. Daraus ergeben sich vier zusätzliche Dublettenzeilen.
 
-### 5.3 KPI „Fehlende Kosten“
+Die betroffenen Zeilen sind nicht vollständig identisch. Für die operative Analyse wurde pro Case-ID nach einer dokumentierten Quellenpriorität ein Datensatz ausgewählt. In der Qualitätsanalyse bleiben alle Vorkommen sichtbar.
 
-**Wert: 5**
+### Status-Datum-Widersprüche
 
-Fünf Datensätze enthalten keinen Wert in `Kosten_EUR`. Dadurch können die ausgewiesenen Gesamtkosten zu niedrig sein.
+Elf Cases besitzen ein Ist-Fertigstellungsdatum, obwohl ihr Status nicht `Abgeschlossen` lautet. Dies kann auf eine fehlende Statusaktualisierung, ein falsch gepflegtes Datum oder unterschiedliche Datenstände der Quellsysteme hinweisen.
 
-Fehlende Kosten wurden nicht durch null ersetzt. Null Euro würden bedeuten, dass sicher keine Kosten entstanden sind. Ein leerer Wert bedeutet dagegen, dass die Kosten unbekannt beziehungsweise nicht gepflegt sind.
+Die betroffenen Werte wurden nicht automatisch korrigiert, da ohne fachliche Geschäftsregel nicht eindeutig entschieden werden kann, welches Feld korrekt ist.
 
-### 5.4 KPI „Zusätzliche Dublettenzeilen“
+### Qualitätsdetailtabelle
 
-**Wert: 4**
+Die Detailtabelle zeigt pro Rohdatensatz die Case-ID, Quelle, Standortangabe, den Dublettenstatus und die einzelnen Datenqualitätskennzeichen. Damit kann jede Qualitätskennzahl bis zum betroffenen Datensatz zurückverfolgt werden.
 
-Die Rohdatentabelle enthält 200 Zeilen, aber nur 196 eindeutige Case-IDs:
-
-```text
-200 Rohzeilen - 196 eindeutige Case-IDs = 4 zusätzliche Zeilen
-```
-
-Die Kennzahl beschreibt vier zusätzliche Dublettenzeilen. Die betroffenen Zeilen sind nicht vollständig identisch, da sie sich teilweise bei Quelle oder Bemerkung unterscheiden.
-
-Für die operative Analyse wurde je Case-ID nach einer dokumentierten Quellenpriorität ein Datensatz ausgewählt. In der Datenqualitätsanalyse bleiben alle Vorkommen erhalten.
-
-### 5.5 KPI „Fehlender Aufwand“
-
-**Wert: 10**
-
-Zehn Datensätze besitzen keinen Wert in `Aufwand_Std`.
-
-Auswirkungen:
-
-- Gesamtaufwand kann zu niedrig ausgewiesen werden.
-- Durchschnittlicher Aufwand kann verzerrt sein.
-- Kapazitäts- und Produktivitätsanalysen sind eingeschränkt.
-- Kosten-pro-Stunde-Berechnungen sind für diese Fälle nicht möglich.
-
-Auch hier wurden fehlende Werte nicht durch null ersetzt.
-
-### 5.6 KPI „Status-Datum-Widersprüche“
-
-**Wert: 11**
-
-Elf Fälle besitzen ein Ist-Fertigstellungsdatum, obwohl ihr Status nicht `Abgeschlossen` lautet.
-
-Beispiel:
-
-```text
-Status: Offen
-Ist-Fertigstellung: 19.02.2026
-```
-
-Mögliche Ursachen:
-
-- Status wurde nach dem Abschluss nicht aktualisiert.
-- Fertigstellungsdatum wurde falsch eingetragen.
-- Die Felder stammen aus unterschiedlichen Systemständen.
-- Das Fertigstellungsdatum besitzt fachlich eine andere Bedeutung.
-
-Diese Fälle wurden gekennzeichnet, aber nicht automatisch verändert. Ohne fachliche Geschäftsregel wäre eine automatische Korrektur nicht belastbar.
-
-### 5.7 Qualitätsdetailtabelle
-
-Die Detailtabelle zeigt pro Rohdatensatz:
-
-- Case-ID
-- Quelle
-- Standort-Rohwert
-- Dublettenstatus
-- Anzahl erkannter Probleme
-- fehlende Kosten
-- fehlenden Aufwand
-- fehlenden Standort
-- fehlenden Ursache-Code
-- unplausible Datumswerte
-- Datenqualitätsstatus
-
-Dadurch kann jede zusammengefasste Qualitätskennzahl bis zum betroffenen Datensatz zurückverfolgt werden.
-
-### 5.8 Interpretation der Gesamtsumme `65`
-
-Die Summe `65` in `DQ_Anzahl_Probleme` bedeutet nicht automatisch, dass 65 unterschiedliche Cases fehlerhaft sind.
-
-Sie beschreibt die Summe aller erkannten Qualitätsverletzungen. Ein einzelner Datensatz kann mehrere Probleme besitzen, zum Beispiel gleichzeitig:
-
-- fehlende Kosten
-- fehlenden Aufwand
-- fehlenden Ursache-Code
-
-Dieser Datensatz erzeugt dann drei Qualitätsprobleme.
-
-Deshalb müssen drei Kennzahlen unterschieden werden:
-
-- **Anzahl Qualitätsprobleme:** Summe sämtlicher Verstöße
-- **Cases mit Prüfbedarf:** Anzahl der betroffenen Datensätze
-- **Anteil mit Prüfbedarf:** betroffene Datensätze geteilt durch alle Rohdatensätze
+Die Summe `DQ_Anzahl_Probleme` beschreibt die Gesamtzahl erkannter Qualitätsverletzungen. Sie ist nicht mit der Anzahl betroffener Cases gleichzusetzen, da ein Case mehrere Probleme gleichzeitig besitzen kann.
 
 ---
 
-## 6. Zusammenspiel der drei Dashboardseiten
+## 5. Zusammenspiel der Dashboardseiten
 
-| Dashboardseite | Kernfrage | Zielgruppe |
+| Seite | Kernfrage | Zielgruppe |
 |---|---|---|
-| Management Overview | Was ist die aktuelle Gesamtsituation? | Management |
+| Management Overview | Wie ist die aktuelle Gesamtsituation? | Management |
 | Operative Analyse | Wo entstehen Rückstände und Auffälligkeiten? | Service- und Teamleitung |
 | Datenqualität | Wie belastbar sind die Kennzahlen? | BI, Data Owner und Management |
 
-Der typische Analyseprozess lautet:
+Der typische Analyseablauf ist:
 
-1. Auf der Managementseite wird eine Auffälligkeit erkannt.
-2. Die operative Seite grenzt Region, Priorität oder Fehlerstruktur ein.
-3. Die Detailtabelle identifiziert die betroffenen Case-IDs.
-4. Die Datenqualitätsseite zeigt, ob fehlende oder widersprüchliche Daten die Aussage einschränken.
-
-Beispiel:
-
-1. Das Management erkennt 111 überfällige offene Cases.
-2. Die operative Seite zeigt deren Verteilung nach Region und Priorität.
-3. Die Detailtabelle zeigt die einzelnen überfälligen Fälle.
-4. Die Qualitätsseite prüft, ob relevante Status- oder Datumswidersprüche vorliegen.
+1. Eine Auffälligkeit wird auf der Managementseite erkannt.
+2. Die operative Seite grenzt die betroffenen Regionen, Prioritäten oder Fehlerkategorien ein.
+3. Die Detailtabelle identifiziert einzelne Case-IDs.
+4. Die Datenqualitätsseite zeigt, ob fehlende oder widersprüchliche Werte die Aussage einschränken.
 
 ---
 
-## 7. Zentrale Managementerkenntnisse
+## 6. Zentrale Erkenntnisse
 
 - Von 196 eindeutigen Servicefällen sind 134 noch nicht abgeschlossen.
 - Die Abschlussquote beträgt 31,6 %.
-- Zum Datenstand vom 15.06.2026 sind 111 offene Fälle überfällig.
-- Der überwiegende Anteil des offenen Bestands hat den Zieltermin überschritten.
-- Die Fehlerkategorie `Prozess` verursacht mit ungefähr 112.673 EUR das höchste Kostenvolumen.
+- Zum Datenstand vom 15.06.2026 sind 111 offene Cases überfällig.
+- Prozessbezogene Fehler verursachen das höchste Kostenvolumen.
 - Der offene Bestand konzentriert sich besonders auf die Regionen `Nord` und `Sued`.
-- Bestimmte Standorte wie Frankfurt, Hannover und Lyon besitzen einen besonders hohen offenen Bestand.
-- Die Datenbasis enthält relevante Qualitätsprobleme, darunter fehlende Standorte, Kosten- und Aufwandswerte, Dubletten sowie Status-Datum-Widersprüche.
+- Mehrere Standorte besitzen einen auffällig hohen offenen Bestand.
+- Die Datenbasis enthält relevante Qualitätsprobleme, die bei der Interpretation berücksichtigt werden müssen.
 
 Zusammenfassende Managementaussage:
 
-> Der Bericht zeigt einen hohen offenen Bestand und eine große Anzahl überfälliger Servicefälle. Besonders die Regionen Nord und Süd sowie mehrere Standorte mit hohem offenen Bestand sollten operativ untersucht werden. Prozessbezogene Fehler stellen den größten Kostenblock dar. Gleichzeitig müssen die Ergebnisse unter Berücksichtigung der dokumentierten Datenqualitätsprobleme interpretiert werden.
+> Der Bericht zeigt einen hohen offenen Bestand und eine große Anzahl überfälliger Servicefälle. Besonders die Regionen Nord und Süd sowie Standorte mit hohem Bearbeitungsrückstand sollten operativ untersucht werden. Prozessbezogene Fehler stellen den größten Kostenblock dar. Gleichzeitig müssen die Ergebnisse unter Berücksichtigung der dokumentierten Datenqualitätsprobleme interpretiert werden.
 
 ---
 
-## 8. Annahmen und Einschränkungen
+## 7. Annahmen und Einschränkungen
 
 - Die Daten sind synthetisch und bilden keine reale Unternehmensperformance ab.
-- Das Berichtsdatum wurde mangels expliziter Vorgabe aus dem maximalen Erfassungsdatum abgeleitet.
+- Das Berichtsdatum wurde aus dem maximalen Erfassungsdatum abgeleitet.
 - Die Quellenpriorität zur Dublettenbehandlung ist eine methodische Annahme und nicht fachlich bestätigt.
 - Die Rangfolge der Prioritäten `A`, `B` und `C` ist nicht definiert.
-- Abweichende Verantwortungsbereiche wurden nicht automatisch überschrieben.
-- Auffällige Kosten- und Aufwandswerte wurden nicht pauschal gelöscht.
 - Fehlende Werte wurden nicht automatisch durch null ersetzt.
-- Der Juni 2026 ist nur bis zum 15.06.2026 enthalten und daher kein vollständiger Berichtsmonat.
-- Die Gesamtkosten berücksichtigen nur vorhandene Kostenwerte.
+- Auffällige Kosten- und Aufwandswerte wurden nicht pauschal gelöscht.
+- Der Juni 2026 ist nur bis zum 15.06.2026 enthalten.
 - Ohne fachliche Sollwerte kann aus der Abschlussquote allein keine abschließende Leistungsbewertung abgeleitet werden.
-- Die monatlichen Kapazitäts- und Budgetwerte der Standorte erfordern für einen Soll-Ist-Vergleich eine zusätzliche fachliche Definition der Bezugszeiträume.
 
 ---
 
-## 9. Qualitätssicherung
+## 8. Fazit
 
-Zur Kontrolle der Umsetzung wurden folgende Referenzwerte verwendet:
+Das Dashboard verbindet Managementübersicht, operative Detailanalyse und Datenqualitätskontrolle in einem Bericht. Dadurch können Auffälligkeiten nicht nur erkannt, sondern bis auf Regionen, Standorte und einzelne Servicefälle zurückverfolgt werden.
 
-| Kontrollkennzahl | Erwarteter Wert |
-|---|---:|
-| Rohdatensätze | 200 |
-| Eindeutige Case-IDs | 196 |
-| Abgeschlossene Cases | 62 |
-| Offener Bestand | 134 |
-| Abschlussquote | 31,6 % |
-| Überfällige offene Cases | 111 |
-| Fehlende Standorte | 5 |
-| Fehlende Kosten | 5 |
-| Fehlender Aufwand | 10 |
-| Zusätzliche Dublettenzeilen | 4 |
-| Status-Datum-Widersprüche | 11 |
-| Gesamtkosten | ca. 375.467 EUR |
-
-Zusätzlich wurde geprüft:
-
-- Die Monatsachse ist chronologisch sortiert.
-- Filter wirken auf die vorgesehenen KPI-Karten und Diagramme.
-- Das Berichtsdatum bleibt trotz gesetzter Filter konstant.
-- Region und Standort filtern die Faktentabelle über eine 1:n-Beziehung.
-- Die Qualitätsseite verwendet die vollständige Rohdatenbasis.
-- Die Management- und operative Seite verwenden die deduplizierte Analysetabelle.
-
----
-
-## 10. Fazit
-
-Das Dashboard bildet einen vollständigen BI-Analyseprozess ab: von der Prüfung und Harmonisierung der Rohdaten über die Modellierung bis zur managementgerechten Visualisierung.
-
-Die drei Berichtsseiten wurden bewusst nach Zielgruppen und Entscheidungsbedarf getrennt. Das Management erhält eine kompakte Gesamtübersicht, operative Verantwortliche können Auffälligkeiten detailliert untersuchen und die Datenqualitätsseite schafft Transparenz über die Belastbarkeit der Ergebnisse.
-
-Die zentrale Stärke des Berichts liegt damit nicht nur in der Visualisierung, sondern in der nachvollziehbaren Verbindung von Datenqualität, operativer Analyse und Managementinterpretation.
+Die Datenqualitätsseite macht gleichzeitig transparent, welche Einschränkungen bei der Interpretation bestehen. Die dargestellten Ergebnisse bilden damit eine nachvollziehbare Grundlage für weitere fachliche Prüfungen und operative Entscheidungen.
