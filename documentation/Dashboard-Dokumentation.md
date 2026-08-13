@@ -131,20 +131,6 @@ Die Kennzahl summiert die vorhandenen Werte aus `Kosten_EUR` für die 196 eindeu
 
 Da fünf Rohdatensätze keinen Kostenwert besitzen, sind die Gesamtkosten möglicherweise unvollständig. Die Kennzahl ist daher als Summe der dokumentierten Kosten zu interpretieren.
 
-Empfohlene Anzeige in Power BI:
-
-```text
-375.467 EUR
-```
-
-oder:
-
-```text
-375,5 Tsd. EUR
-```
-
-Die Kombination `375.467 Tsd. EUR` wäre missverständlich, da sie als 375 Millionen EUR interpretiert werden könnte.
-
 ### 3.8 Diagramm „Offener Bestand nach Region“
 
 Das Säulendiagramm zeigt die Verteilung der noch nicht abgeschlossenen Fälle auf die Regionen.
