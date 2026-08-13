@@ -1,4 +1,64 @@
-# Dokumentation des Power-BI-Service-Case-Dashboards
+# Power BI Service Case Study
+
+Dieses Repository enthält eine Power-BI-Fallstudie zur Analyse synthetischer Service-Case-Daten. Enthalten sind die Power-BI-Datei, die Excel-Rohdaten, Dashboard-Screenshots und diese Projektdokumentation.
+
+## Repository verwenden
+
+### Voraussetzungen
+
+Zum Öffnen und Bearbeiten des Dashboards werden benötigt:
+
+- Windows 10 oder Windows 11
+- [Power BI Desktop](https://www.microsoft.com/power-platform/products/power-bi/desktop)
+- optional Git für das Klonen des Repositories
+
+Power BI Desktop kann kostenlos von Microsoft heruntergeladen und installiert werden. Ein Power-BI-Pro-Account ist für die lokale Nutzung der `.pbix`-Datei nicht erforderlich.
+
+### Repository klonen
+
+Das Repository kann über PowerShell, die Windows-Eingabeaufforderung oder Git Bash geklont werden:
+
+```bash
+git clone https://github.com/eibrahi/power-bi-service-case-study.git
+cd power-bi-service-case-study
+```
+
+Alternativ kann das Repository auf GitHub über **Code → Download ZIP** heruntergeladen und anschließend entpackt werden.
+
+### Dashboard öffnen
+
+1. Power BI Desktop installieren und starten.
+2. Im geklonten oder entpackten Repository den Ordner `dashboard` öffnen.
+3. Die Datei `Service_Case_Analyse.pbix` mit Power BI Desktop öffnen.
+4. Falls Power BI nach dem Pfad der Datenquelle fragt, die Excel-Datei aus dem Ordner `data` auswählen.
+5. In Power BI über **Start → Aktualisieren** die Daten neu laden.
+
+### Berichtsseiten
+
+Die `.pbix`-Datei enthält drei Seiten:
+
+- **Management Overview**
+- **Operative Analyse**
+- **Datenqualität**
+
+Die Seiten können über die Reiter am unteren Rand von Power BI geöffnet werden. Filter und Diagramme sind interaktiv und wirken auf die jeweils verbundenen Visualisierungen.
+
+### Repository-Struktur
+
+```text
+power-bi-service-case-study/
+├── README.md
+├── dashboard/
+│   └── Service_Case_Analyse.pbix
+├── data/
+│   └── Fallstudie_Rohdaten_Service_Cases.xlsx
+└── screenshots/
+    ├── 01_management_overview.png
+    ├── 02_operativ.png
+    └── 03_datenqualitaet.png
+```
+
+## Dokumentation
 
 ## 1. Zielsetzung
 
