@@ -1,6 +1,6 @@
 # Power BI Service Case Study
 
-Dieses Repository enthält eine Power-BI-Fallstudie zur Analyse synthetischer Service-Case-Daten. Enthalten sind die Power-BI-Datei, die Excel-Rohdaten, Dashboard-Screenshots und diese Projektdokumentation.
+Dieses Repository enthält eine Power-BI-Fallstudie zur Analyse synthetischer Service-Case-Daten. Enthalten sind die Power-BI-Datei, die Excel-Rohdaten, Dashboard-Screenshots und eine Projektdokumentation mit den einzelnen Schritten.
 
 ## Repository verwenden
 
